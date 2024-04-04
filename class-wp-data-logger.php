@@ -132,7 +132,7 @@ class WP_Data_Logger{
 				
 				ob_start();
 				var_dump( maybe_unserialize( @$item['content'] ) );
-				$content = ob_get_clean();
+				$content = esc_html( ob_get_clean() );
 		?>
 				<tr class="data <?php echo $status;?>" id="loggerDataRow_<?php echo $i; ?>">
 					<td width="100px" class="num_column dblClickToScroll" >
