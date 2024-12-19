@@ -175,6 +175,10 @@ class WP_Data_Logger{
   
 	function clear_log(){
 		global $wpdb;
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( json_encode( new \WP_Error( 'no_permission', 'You have no permission to do this', array( 'status' => 403 ) ) ) );
+		}
 		
 		if ( $_POST['status'] == 'all' ) :
 			$wpdb->query( 'TRUNCATE ' . self::$table_name );
