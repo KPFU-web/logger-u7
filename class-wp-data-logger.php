@@ -1,10 +1,11 @@
 <?php
 
 class WP_Data_Logger{
-	
+
 	protected static $instance;
 	protected static $table_name;
-	
+	protected static $action = 'wp-data-logger--clear-log';
+
 	public static function get_instance(){
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
@@ -14,7 +15,7 @@ class WP_Data_Logger{
 
 	function __construct(){
 		global $wpdb;
-		
+
 		add_action( 'admin_menu', function(){
 			add_management_page(
 				$page_title = 'WP Logger',
@@ -24,46 +25,46 @@ class WP_Data_Logger{
 				$func = array( $this, 'display_page' )
 			);
 		});
-		
+
 		self::$table_name = $wpdb->get_blog_prefix() . 'data_logger';
-		
+
 		add_action( 'upgrader_process_complete', array( $this, 'upgrader' ), 10, 2 );
-		
+
 		add_filter( 'plugin_action_links_' . WPDL_PLUGIN_NAME, array( $this, 'add_settings_link' ) );
-		add_action( 'wp_ajax_LoggerClearLog', array( $this, 'clear_log' ) );
-		
+		add_action( "wp_ajax_" . self::$action, array( $this, 'clear_log' ) );
+
 		add_action( 'logger', array( $this, 'add' ), 0, 2 );
-		
+
 		//self::check_installation();
 	}
-	
+
 	public function activation(){
 		self::check_installation();
 	}
-	
+
 	public function upgrader( $upgrader_object = null, $options = [] ){
 		if ( ! empty( $upgrader_object ) &&
 			(
-			@$options['action'] != 'update' 
-			|| @$options['type'] != 'plugin' 
-			|| empty( $options['plugins'] ) 
-			|| ! in_array( WPDL_PLUGIN_NAME, @$options['plugins'] ) 
+			@$options['action'] != 'update'
+			|| @$options['type'] != 'plugin'
+			|| empty( $options['plugins'] )
+			|| ! in_array( WPDL_PLUGIN_NAME, @$options['plugins'] )
 			)
 		) return;
-		
+
 		self::check_installation();
 		//self::remove_old_data();
 	}
-	
+
 	public function check_installation( $upgrader_object = null, $options = [] ){
 		self::$instance->db_delta();
 	}
-	
+
 	function db_delta(){
 		global $wpdb;
 		$table = self::$table_name;
-		
-		$query = 
+
+		$query =
 		"CREATE TABLE {$table} (
 			ID  int(11) unsigned NOT NULL auto_increment,
 			status varchar(255) NOT NULL default '',
@@ -76,29 +77,29 @@ class WP_Data_Logger{
 		dbDelta( $query );
 		return true;
 	}
-	
+
 	public function remove_old_data(){
 		delete_option( 'logger_u7' );
 	}
 
 	function display_page(){
 		global $wpdb;
-		
+
 		$default_limit = 200;
 		$limit = ( ! defined( 'WPDL_DISPLAY_LIMIT' ) || ! is_numeric( WPDL_DISPLAY_LIMIT ) || WPDL_DISPLAY_LIMIT < 1 ) ? $default_limit : WPDL_DISPLAY_LIMIT;
-		
+
 		echo	'<h1>Log</h1>';
 		echo	'<p>For adding data to log use the hook: <code>do_action( \'logger\', $data[, $status = \'info\' ] );</code></p>';
 		echo 	'<a class="button log_status_selector status_all" data-status="all">ALL</a>'.
 				'<a class="button log_status_selector status_info" data-status="info">INFO</a>'.
 				'<a class="button log_status_selector status_warning" data-status="warning">WARNING</a>'.
-				'<a class="button log_status_selector status_error" data-status="error">ERROR</a>'.	
+				'<a class="button log_status_selector status_error" data-status="error">ERROR</a>'.
 				apply_filters( 'wp_logger_button_panel', '' );
 
 		echo	'<a class="button clear_log button-link-delete" href="" data-status="info">Clear INFO</a>' .
 				'<a class="button clear_log button-link-delete" href="" data-status="warning">Clear WARNING</a>' .
 				'<a class="button clear_log button-link-delete" href="" data-status="error">Clear ERROR</a>' .
-				
+
 				'<a class="button clear_log button-link-delete" href="" data-status="all">Clear Log</a>' ;
 
 		$suppress = $wpdb->suppress_errors( true );
@@ -124,12 +125,12 @@ class WP_Data_Logger{
 		</tr>
 		</thead>
 		<tbody>
-		<?php 
+		<?php
 			$i = 0;
-			foreach( $data as $k => $item ): 
+			foreach( $data as $k => $item ):
 				$i++;
 				$status = 'all ' . @$item['status'];
-				
+
 				ob_start();
 				var_dump( maybe_unserialize( @$item['content'] ) );
 				$content = esc_html( ob_get_clean() );
@@ -172,14 +173,16 @@ class WP_Data_Logger{
 		array_unshift( $links, $settings_link );
 		return $links;
 	}
-  
+
 	function clear_log(){
 		global $wpdb;
+
+		check_ajax_referer( self::$action );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( json_encode( new \WP_Error( 'no_permission', 'You have no permission to do this', array( 'status' => 403 ) ) ) );
 		}
-		
+
 		if ( $_POST['status'] == 'all' ) :
 			$wpdb->query( 'TRUNCATE ' . self::$table_name );
 		elseif ( ! empty( $_POST['status'] ) ) :
@@ -195,15 +198,15 @@ class WP_Data_Logger{
 				wpautop( $data['upgrade_notice'] )
 			);
 		endif;
-		
+
 		if ( ! defined( 'WPDL_VERSION' ) || version_compare( WPDL_VERSION, '2.0', '<' ) ) :
 			printf(
 				'<div class="update-message">%s</div>',
 				wpautop( 'During update will be lost all logged data. Please, make sure this won\'t hurt you.' )
-			);		
+			);
 		endif;
 	}
-	
+
 	function print_css(){
 		$css = "
 		.dblClickToScroll{ 
@@ -266,9 +269,9 @@ class WP_Data_Logger{
 			margin: 0 20px;
 		}";
 		return $css;
-		
+
 	}
-	
+
 	function print_js(){
 		$js = "
 
@@ -290,7 +293,11 @@ class WP_Data_Logger{
 				if ( ! confirm( 'Do you wish really do this?' ) ) return;
 				jQuery.post( 
 					'". get_admin_url() ."/admin-ajax.php',
-					{ action : 'LoggerClearLog', status : btn.data( 'status' ) },
+					{ 
+                        action : '". self::$action ."', 
+                        status : btn.data( 'status' ),
+                        _ajax_nonce : '". wp_create_nonce( self::$action ) ."'
+                    },
 					function( response ){
 						response = JSON.parse( response );
 						if ( response.done == true ){
@@ -326,7 +333,7 @@ class WP_Data_Logger{
 			
 		</script>
 		";
-		
+
 		return $js;
 	}
 }
