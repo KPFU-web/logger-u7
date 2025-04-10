@@ -1,9 +1,9 @@
 === WP Logger ===
 Contributors: hokku,casepress
-Tags: logger,wp logger,log,debug,data logging,data logger,wp data logger,develop
-Donate link: https://www.paypal.me/hokku
+Tags: logger,develop,log,debug,data
+Donate link: https://www.paypal.me/igortron
 Requires at least: 3.5
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 5.6
 Stable tag: 2.2
 License: GPLv2 or later
