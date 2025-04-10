@@ -43,7 +43,6 @@ Logger vars and event for debug site and apps.
 * PayPal link updated.
 * Plugin tags updated.
 
-== Changelog ==
 = 2.2 =
 * Clear log vulnerability fixed.
 
