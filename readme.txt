@@ -4,20 +4,28 @@ Tags: logger,develop,log,debug,data
 Donate link: https://www.paypal.me/igortron
 Requires at least: 3.5
 Tested up to: 6.8
-Requires PHP: 5.6
-Stable tag: 2.2.1
+Requires PHP: 7.1
+Stable tag: 2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Logging vars and event for debug site and apps.
+Logging vars and events for fast debug WordPress site.
 
 == Description ==
-Logger vars and event for debug site and apps.
 
-0. Insert the hook do_action( 'logger', $data ); in your code
-1. Go to Tools > Logger 
+0. Insert the hook <code>do_action( 'logger', $data );</code> in your code
+1. Go to **Tools > WP Logger**
 
-= Available additional hooks: =
+= Additional buttons =
+Use the <code>wpdl_add_button( string $name, callable $clb, string $btnClass = '' )</code> function to add a button to the logger page.
+
+* **$name** text for the button;
+* **$clb** callback function;
+* **$btnClass** class for the button (optional).
+
+Click on the button to execute the function via WP-AJAX. If an Exception or Error occurs, it will be logged as well.
+
+= Hooks: =
 * wp_logger_button_panel
 * wp_logger_inline_css
 * wp_logger_inline_js
@@ -29,15 +37,19 @@ Logger vars and event for debug site and apps.
 [GitHub](https://github.com/hokoo/logger-u7)
 
 == Installation ==
-0. Upload plugin to the `/wp-content/plugins/` directory
-1. Activate the plugin through the \'Plugins\' menu in WordPress
-2. Insert the hook do_action( \'logger\', $data ); in your code
-3. Go to Tools > Logger 
+0. Upload the plugin to the `/wp-content/plugins/` directory.
+1. Activate the plugin through the **Plugins** menu in WordPress.
+2. Insert the hook `do_action( 'logger', $data );` in your code.
+3. Go to **Tools > WP Logger**.
 
 == Screenshots ==
 1. Logger page
 
 == Changelog ==
+= 2.3 =
+* Custom button adding function introduced.
+* PHP min version changed to 7.1.
+
 = 2.2.1 =
 * Nonce verification for ajax queries.
 * PayPal link updated.

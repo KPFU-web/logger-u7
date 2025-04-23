@@ -44,12 +44,12 @@ class WP_Data_Logger{
 
 	public function upgrader( $upgrader_object = null, $options = [] ){
 		if ( ! empty( $upgrader_object ) &&
-			(
-			@$options['action'] != 'update'
-			|| @$options['type'] != 'plugin'
-			|| empty( $options['plugins'] )
-			|| ! in_array( WPDL_PLUGIN_NAME, @$options['plugins'] )
-			)
+		     (
+			     @$options['action'] != 'update'
+			     || @$options['type'] != 'plugin'
+			     || empty( $options['plugins'] )
+			     || ! in_array( WPDL_PLUGIN_NAME, @$options['plugins'] )
+		     )
 		) return;
 
 		self::check_installation();
@@ -65,7 +65,7 @@ class WP_Data_Logger{
 		$table = self::$table_name;
 
 		$query =
-		"CREATE TABLE {$table} (
+			"CREATE TABLE {$table} (
 			ID  int(11) unsigned NOT NULL auto_increment,
 			status varchar(255) NOT NULL default '',
 			date datetime NULL DEFAULT CURRENT_TIMESTAMP,
@@ -89,18 +89,18 @@ class WP_Data_Logger{
 		$limit = ( ! defined( 'WPDL_DISPLAY_LIMIT' ) || ! is_numeric( WPDL_DISPLAY_LIMIT ) || WPDL_DISPLAY_LIMIT < 1 ) ? $default_limit : WPDL_DISPLAY_LIMIT;
 
 		echo	'<h1>Log</h1>';
-		echo	'<p>For adding data to log use the hook: <code>do_action( \'logger\', $data[, $status = \'info\' ] );</code></p>';
+		echo	"<p>For adding data to log use the hook: <code>do_action( 'logger', \$data, \$status = 'warning' );</code></p>";
 		echo 	'<a class="button log_status_selector status_all" data-status="all">ALL</a>'.
-				'<a class="button log_status_selector status_info" data-status="info">INFO</a>'.
-				'<a class="button log_status_selector status_warning" data-status="warning">WARNING</a>'.
-				'<a class="button log_status_selector status_error" data-status="error">ERROR</a>'.
-				apply_filters( 'wp_logger_button_panel', '' );
+		        '<a class="button log_status_selector status_info" data-status="info">INFO</a>'.
+		        '<a class="button log_status_selector status_warning" data-status="warning">WARNING</a>'.
+		        '<a class="button log_status_selector status_error" data-status="error">ERROR</a>'.
+		        apply_filters( 'wp_logger_button_panel', '' );
 
 		echo	'<a class="button clear_log button-link-delete" href="" data-status="info">Clear INFO</a>' .
-				'<a class="button clear_log button-link-delete" href="" data-status="warning">Clear WARNING</a>' .
-				'<a class="button clear_log button-link-delete" href="" data-status="error">Clear ERROR</a>' .
+		        '<a class="button clear_log button-link-delete" href="" data-status="warning">Clear WARNING</a>' .
+		        '<a class="button clear_log button-link-delete" href="" data-status="error">Clear ERROR</a>' .
 
-				'<a class="button clear_log button-link-delete" href="" data-status="all">Clear Log</a>' ;
+		        '<a class="button clear_log button-link-delete" href="" data-status="all">Clear Log</a>' ;
 
 		$suppress = $wpdb->suppress_errors( true );
 		$data = $wpdb->get_results( 'SELECT * FROM '. self::$table_name . ' ORDER BY ID DESC LIMIT ' . $limit, ARRAY_A );
@@ -112,20 +112,20 @@ class WP_Data_Logger{
 
 		$styles = apply_filters( 'wp_logger_inline_css', self::print_css() );
 		echo apply_filters( 'wp_logger_inline_js', self::print_js() );
-	?>
-	<style>
-		<?php echo $styles; ?>
-	</style>
-	<table border="1" width="100%" class="logger_table">
-		<thead>
-		<tr>
-		  <th>№</th>
-		  <th>Status</th>
-		  <th class="th_data">Data <span class="hide_data"><span class="hide_all">[Hide all]</span> <span class="show_all">[Show all]</span></span></th>
-		</tr>
-		</thead>
-		<tbody>
-		<?php
+		?>
+		<style>
+			<?php echo $styles; ?>
+		</style>
+		<table border="1" width="100%" class="logger_table">
+			<thead>
+			<tr>
+				<th>№</th>
+				<th>Status</th>
+				<th class="th_data">Data <span class="hide_data"><span class="hide_all">[Hide all]</span> <span class="show_all">[Show all]</span></span></th>
+			</tr>
+			</thead>
+			<tbody>
+			<?php
 			$i = 0;
 			foreach( $data as $k => $item ):
 				$i++;
@@ -134,10 +134,10 @@ class WP_Data_Logger{
 				ob_start();
 				var_dump( maybe_unserialize( @$item['content'] ) );
 				$content = esc_html( ob_get_clean() );
-		?>
+				?>
 				<tr class="data <?php echo $status;?>" id="loggerDataRow_<?php echo $i; ?>">
 					<td width="100px" class="num_column dblClickToScroll" >
-					  <span><span class="prev">[prev]</span><b>[<?php echo $k + 1; ?>]</b><span class="next">[next]</span></span>
+						<span><span class="prev">[prev]</span><b>[<?php echo $k + 1; ?>]</b><span class="next">[next]</span></span>
 					</td>
 					<td class="status_column" align="center"><span><?php echo @$item['status'];?></span></td>
 					<td class="data_column">
@@ -145,16 +145,16 @@ class WP_Data_Logger{
 						<pre class="data_content"><?php echo apply_filters( 'wp_data_logger_print_data', $content ); ?></pre>
 					</td>
 				</tr>
-		<?php endforeach; ?>
-		</tbody>
-	</table>
-<?php
+			<?php endforeach; ?>
+			</tbody>
+		</table>
+		<?php
 	}
 
 	function add( $data = '', $status = 'info' ){
 		global $wpdb;
-        $suppress = $wpdb->suppress_errors( true );
-        $i = 0;
+		$suppress = $wpdb->suppress_errors( true );
+		$i = 0;
 		do{
 			$result = $wpdb->insert(
 				self::$table_name,
@@ -166,8 +166,8 @@ class WP_Data_Logger{
 	}
 
 	/**
-	* Add fast link in plugins list
-	*/
+	 * Add fast link in plugins list
+	 */
 	function add_settings_link( $links ){
 		$settings_link = '<a href="tools.php?page=logger">View WP Logger</a>';
 		array_unshift( $links, $settings_link );
@@ -335,5 +335,58 @@ class WP_Data_Logger{
 		";
 
 		return $js;
+	}
+	/**
+	 * Add button to WP Logger plugin page
+	 *
+	 * @param string $name Button name
+	 * @param callable $clb Callback function
+	 * @param string $btnClass Button class. Default is empty (will be generated).
+	 */
+	public static function add_panel_button( string $name, callable $clb, string $btnClass = '' ) {
+		// Define $action as a unique random action name
+		$action = 'wpdl_' . md5( serialize( func_get_args() ) );
+
+		$btnClass = $btnClass ?: $action;
+
+		add_action( "wp_ajax_$action", function () use ( $name, $action, $clb ) {
+			check_ajax_referer( $action );
+
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( json_encode( new \WP_Error( 'no_permission', 'You have no permission to do this', array( 'status' => 403 ) ) ) );
+			}
+
+			do_action( 'logger', [ 'button-execution-started' => $name ]) ;
+
+			try {
+				call_user_func( $clb );
+			} catch ( \Exception|\Error $e ) {
+				do_action( 'logger', [ 'button' => $name, 'exception' => $e ], 'error' );
+
+				throw $e;
+			}
+
+			do_action( 'logger', [ 'button-execution-finished' => $name ]) ;
+		} );
+
+		add_filter( 'wp_logger_button_panel', function() use ( $name, $btnClass, $action  ){
+			return
+				"
+		<a class='button button-primary $btnClass' href=''>$name</a>
+		<script>
+			jQuery( 'a.$btnClass' ).click( function( eo ){
+				eo.preventDefault();
+				if ( ! confirm( 'Do $name start?' ) ) return;
+				jQuery.post( 
+					'". get_admin_url() ."/admin-ajax.php',
+					{ 
+                        action : '$action',
+                        _ajax_nonce : '". wp_create_nonce( $action ) ."'
+                    },
+					function( response ){}
+				);
+			})
+		</script>";
+		} );
 	}
 }
