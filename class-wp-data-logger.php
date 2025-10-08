@@ -85,7 +85,7 @@ class WP_Data_Logger{
 	function display_page(){
 		global $wpdb;
 
-		$default_limit = 200;
+		$default_limit = 2000;
 		$limit = ( ! defined( 'WPDL_DISPLAY_LIMIT' ) || ! is_numeric( WPDL_DISPLAY_LIMIT ) || WPDL_DISPLAY_LIMIT < 1 ) ? $default_limit : WPDL_DISPLAY_LIMIT;
 
 		echo	'<h1>Log</h1>';
